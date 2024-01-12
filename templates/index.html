@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wind Turbine Data Monitor</title>
+</head>
+<body>
+    <h1>Wind Turbine Data Monitor</h1>
+    <p id="windSpeed">Wind Speed: Loading...</p>
+
+    <script>
+        const eventSource = new EventSource("/stream");
+
+        eventSource.onmessage = (event) => {
+            const windSpeedElement = document.getElementById('windSpeed');
+            windSpeedElement.innerText = `Wind Speed: ${event.data} m/s`;
+        };
+
+        eventSource.onerror = (error) => {
+            console.error('EventSource failed:', error);
+            eventSource.close();
+        };
+    </script>
+</body>
+</html>

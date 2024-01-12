@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wind Turbine Data Monitor</title>
+    <style>
+        .turbine-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        .turbine {
+            width: 30%; /* Adjust the width as needed */
+            margin: 10px;
+        }
+
+        .wind-speed {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Wind Turbine Data Monitor</h1>
+
+    <div class="turbine-container">
+        {% for turbine_id in range(1, 7) %}
+            <div class="turbine">
+                <img src="{{ url_for('static', filename='animated_turbine.gif') }}" alt="Turbine {{ turbine_id }}">
+                <p class="wind-speed" id="windSpeed{{ turbine_id }}">Wind Speed: Loading...</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        const eventSource = new EventSource("/stream");
+
+        const updateWindSpeed = (turbineId, windSpeed) => {
+            const windSpeedElement = document.getElementById(`windSpeed${turbineId}`);
+            windSpeedElement.innerText = `Wind Speed: ${windSpeed} m/s`;
+        };
+
+        eventSource.onmessage = (event) => {
+            const windSpeedData = event.data.split(';');
+            for (let i = 0; i < windSpeedData.length; i++) {
+                updateWindSpeed(i + 1, windSpeedData[i]);
+            }
+        };
+
+        eventSource.onerror = (error) => {
+            console.error('EventSource failed:', error);
+            eventSource.close();
+        };
+    </script>
+</body>
+</html>
